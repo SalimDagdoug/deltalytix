@@ -2,11 +2,16 @@
 
 import { NextResponse } from "next/server";
 import { createClient, getWebsiteURL } from "@/server/auth";
-import { stripe } from "@/actions/stripe";
+import { stripe, isStripeConfigured } from "@/actions/stripe";
 import { getSubscriptionDetails } from "@/server/subscription";
 import { getReferralBySlug } from "@/server/referral";
 
 async function handleCheckoutSession(lookup_key: string, user: any, websiteURL: string, referral?: string | null, promo_code?: string | null) {
+    // PERSONAL DEPLOYMENT: Stripe not configured
+    if (!isStripeConfigured() || !stripe) {
+        return NextResponse.redirect(`${websiteURL}dashboard?success=true`, 303);
+    }
+
     const subscriptionDetails = await getSubscriptionDetails();
     
     // If referral code is provided, validate it (but don't block checkout if invalid)

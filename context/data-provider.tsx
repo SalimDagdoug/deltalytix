@@ -1051,21 +1051,8 @@ export const DataProvider: React.FC<{
   );
 
   const isPlusUser = () => {
-    // Use Stripe subscription store for more accurate subscription status
-    const stripeSubscription =
-      useStripeSubscriptionStore.getState().stripeSubscription;
-    if (stripeSubscription) {
-      const planName = stripeSubscription.plan?.name?.toLowerCase() || "";
-      return planName.includes("plus") || planName.includes("pro");
-    }
-
-    // Fallback to database subscription
-    return Boolean(
-      subscription?.status === "active" &&
-        ["plus", "pro"].includes(
-          subscription?.plan?.split("_")[0].toLowerCase() || ""
-        )
-    );
+    // PERSONAL DEPLOYMENT: All users are Plus users
+    return true;
   };
 
   const saveAccount = useCallback(

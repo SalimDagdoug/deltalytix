@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server'
 
-const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL as string
-
-if (!DISCORD_WEBHOOK_URL) {
-  throw new Error('Missing DISCORD_WEBHOOK_URL environment variable')
-}
+const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL
 
 export async function POST(request: Request) {
+  // PERSONAL DEPLOYMENT: Discord webhook not configured
+  if (!DISCORD_WEBHOOK_URL) {
+    return NextResponse.json({ success: true, message: 'Discord webhook not configured' })
+  }
+
   try {
     const { 
       username, 

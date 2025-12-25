@@ -166,6 +166,7 @@
     "eslint-config-next": "16.0.7",
     "postcss": "^8.5.6",
     "react-email": "4.3.2",
+    "supabase": "^2.70.5",
     "tailwindcss": "^4.1.16",
     "ts-node": "^10.9.2",
     "tw-animate-css": "latest",

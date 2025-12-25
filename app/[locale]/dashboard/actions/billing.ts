@@ -3,7 +3,7 @@
 import { createClient } from '@/server/auth'
 import { cookies } from 'next/headers'
 import { PrismaClient } from '@prisma/client'
-import { stripe } from '@/actions/stripe'
+import { stripe, isStripeConfigured } from '@/actions/stripe'
 import Stripe from 'stripe'
 
 const prisma = new PrismaClient()
@@ -58,6 +58,32 @@ export type SubscriptionWithPrice = {
 
 export async function getSubscriptionData() {
   console.debug('getSubscriptionData')
+  
+  // PERSONAL DEPLOYMENT: If Stripe is not configured, return Plus subscription
+  if (!isStripeConfigured()) {
+    const now = Math.floor(Date.now() / 1000)
+    return {
+      id: 'personal_plus',
+      status: 'active',
+      current_period_end: now + (365 * 24 * 60 * 60 * 100), // 100 years from now
+      current_period_start: now,
+      created: now,
+      cancel_at_period_end: false,
+      cancel_at: null,
+      canceled_at: null,
+      trial_end: null,
+      trial_start: null,
+      plan: {
+        id: 'plus_lifetime',
+        name: 'Plus',
+        amount: 0,
+        interval: 'lifetime' as const,
+      },
+      promotion: undefined,
+      invoices: []
+    } as SubscriptionWithPrice
+  }
+
   const supabase = await createClient()
 
   try {
@@ -71,6 +97,29 @@ export async function getSubscriptionData() {
     })
 
     if (localSubscription && localSubscription.status === 'ACTIVE' && localSubscription.interval === 'lifetime') {
+
+      // If Stripe is not configured, return lifetime subscription without invoices
+      if (!stripe) {
+        return {
+          id: 'lifetime_personal',
+          status: 'active',
+          current_period_end: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60 * 100),
+          current_period_start: Math.floor(Date.now() / 1000),
+          created: Math.floor(Date.now() / 1000),
+          cancel_at_period_end: false,
+          cancel_at: null,
+          canceled_at: null,
+          trial_end: null,
+          trial_start: null,
+          plan: {
+            id: 'plus_lifetime',
+            name: 'Plus',
+            amount: 0,
+            interval: 'lifetime' as const,
+          },
+          invoices: []
+        } as SubscriptionWithPrice
+      }
 
       // Get customer and invoices for lifetime subscription
       const customers = await stripe.customers.list({
@@ -179,6 +228,9 @@ export async function getSubscriptionData() {
     }
 
     // SECOND: Check for active Stripe subscription (recurring plans)
+    // At this point, stripe must be configured (early return handles the no-stripe case)
+    if (!stripe) throw new Error('Stripe not configured')
+    
     const customers = await stripe.customers.list({
       email: user.email,
       limit: 1,
@@ -375,6 +427,11 @@ function createLifetimeSubscriptionData(localSubscription: any, invoices: any[])
 }
 
 export async function updateSubscription(action: 'pause' | 'resume' | 'cancel', subscriptionId: string) {
+  // PERSONAL DEPLOYMENT: No Stripe, just return success
+  if (!isStripeConfigured() || !stripe) {
+    return { success: true }
+  }
+  
   try {
     if (action === 'pause' || action === 'cancel') {
       // Cancel at period end for all subscriptions
@@ -424,6 +481,11 @@ export async function collectSubscriptionFeedback(
 }
 
 export async function switchSubscriptionPlan(newLookupKey: string) {
+  // PERSONAL DEPLOYMENT: No Stripe, plan switching not needed
+  if (!isStripeConfigured() || !stripe) {
+    return { success: true, message: 'All users have Plus plan in personal deployment' }
+  }
+
   const supabase = await createClient()
 
   try {

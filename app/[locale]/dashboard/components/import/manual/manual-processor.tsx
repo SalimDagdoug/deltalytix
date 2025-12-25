@@ -14,6 +14,7 @@ import { useTradesStore } from '@/store/trades-store'
 import { generateTradeHash } from '@/lib/utils'
 import { PlatformProcessorProps } from '../config/platforms'
 import { Plus, Trash2, Edit2 } from 'lucide-react'
+import { DateTimePicker } from '@/components/ui/datetime-picker'
 
 interface TradeFormData {
   instrument: string
@@ -345,20 +346,18 @@ export default function ManualProcessor({ processedTrades, setProcessedTrades, a
             </div>
             <div className="space-y-2">
               <Label htmlFor="entryDate">{t('import.manual.entryDate')} *</Label>
-              <Input
-                id="entryDate"
-                type="datetime-local"
+              <DateTimePicker
                 value={formData.entryDate}
-                onChange={(e) => setFormData({ ...formData, entryDate: e.target.value })}
+                onChange={(value) => setFormData({ ...formData, entryDate: value })}
+                placeholder="Select entry date and time"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="closeDate">{t('import.manual.closeDate')}</Label>
-              <Input
-                id="closeDate"
-                type="datetime-local"
+              <DateTimePicker
                 value={formData.closeDate || ''}
-                onChange={(e) => setFormData({ ...formData, closeDate: e.target.value || null })}
+                onChange={(value) => setFormData({ ...formData, closeDate: value || null })}
+                placeholder="Select close date and time"
               />
             </div>
             <div className="space-y-2">

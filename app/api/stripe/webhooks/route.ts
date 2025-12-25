@@ -2,7 +2,7 @@
 
 import type { Stripe } from "stripe";
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/actions/stripe";
+import { stripe, isStripeConfigured } from "@/actions/stripe";
 import { PrismaClient } from "@prisma/client";
 import { sendSubscriptionErrorEmail } from "@/app/[locale]/(landing)/actions/send-support-email";
 
@@ -35,6 +35,11 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(req: Request) {
+  // PERSONAL DEPLOYMENT: Stripe not configured
+  if (!isStripeConfigured() || !stripe) {
+    return NextResponse.json({ message: 'Stripe not configured' }, { status: 200 });
+  }
+
   let event: Stripe.Event | undefined;
   try {
     event = stripe.webhooks.constructEvent(

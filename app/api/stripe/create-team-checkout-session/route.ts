@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { createClient, getWebsiteURL } from "@/server/auth";
-import { stripe } from "@/actions/stripe";
+import { stripe, isStripeConfigured } from "@/actions/stripe";
 
 async function handleTeamCheckoutSession(user: any, websiteURL: string, teamName?: string, currency: 'USD' | 'EUR' = 'USD') {
+    // PERSONAL DEPLOYMENT: Stripe not configured
+    if (!isStripeConfigured() || !stripe) {
+        return NextResponse.redirect(`${websiteURL}dashboard/settings?success=team_created`, 303);
+    }
+
     // First, try to find existing customer
     const existingCustomers = await stripe.customers.list({
         email: user.email,
