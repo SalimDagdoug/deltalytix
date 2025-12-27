@@ -8,7 +8,7 @@ import RenewalNoticeEmail from '@/components/emails/renewal-notice'
 
 
 const prisma = new PrismaClient()
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Resend client initialization moved to GET handler
 
 // Utility function to get date locale
 const getDateLocale = (language: string) => {
@@ -73,6 +73,9 @@ const calculateNextPaymentDate = (currentDate: Date, frequency: string): Date =>
 
 // Daily cron job handler - runs every day at 9 AM UTC
 export async function GET(req: Request) {
+  // Initialize Resend client at runtime
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  
   try {
     // Verify that this is a legitimate Vercel cron job request
     const headersList = await headers()
