@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import auth from '@/locales/en/auth'
 import { createClient } from '@/server/auth'
 import { revalidatePath } from 'next/cache'
-import { Resend } from 'resend'
+import { getResendClient } from '@/lib/resend'
 import { render } from '@react-email/render'
 import TeamInvitationEmail from '@/components/emails/team-invitation'
 
@@ -695,7 +695,7 @@ export async function sendTeamInvitation(teamId: string, traderEmail: string) {
       throw new Error('RESEND_API_KEY is not configured')
     }
 
-    const resend = new Resend(process.env.RESEND_API_KEY)
+    const resend = getResendClient()
     const { error: emailError } = await resend.emails.send({
       from: 'Deltalytix Team <team@eu.updates.deltalytix.app>',
       to: traderEmail,

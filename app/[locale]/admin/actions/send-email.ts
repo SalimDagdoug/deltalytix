@@ -1,7 +1,7 @@
 "use server"
 
 import * as React from "react"
-import { Resend } from "resend"
+import { getResendClient } from '@/lib/resend'
 import { prisma } from "@/lib/prisma"
 import { createClient, type User } from "@supabase/supabase-js"
 import { render } from "@react-email/render"
@@ -268,7 +268,7 @@ export async function sendEmailsToUsers(
       throw new Error("RESEND_API_KEY is not configured")
     }
 
-    const resend = new Resend(process.env.RESEND_API_KEY)
+    const resend = getResendClient()
     const EmailComponent = await getEmailTemplate(template)
 
     const dbUsers = await prisma.user.findMany({

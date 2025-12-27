@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { PrismaClient } from "@prisma/client"
-import { Resend } from 'resend'
+import { getResendClient } from '@/lib/resend'
 import { headers } from 'next/headers'
 import { format, subDays, isEqual, startOfDay } from 'date-fns'
 import { enUS, fr } from 'date-fns/locale'
@@ -74,7 +74,7 @@ const calculateNextPaymentDate = (currentDate: Date, frequency: string): Date =>
 // Daily cron job handler - runs every day at 9 AM UTC
 export async function GET(req: Request) {
   // Initialize Resend client at runtime
-  const resend = new Resend(process.env.RESEND_API_KEY)
+  const resend = getResendClient()
   
   try {
     // Verify that this is a legitimate Vercel cron job request

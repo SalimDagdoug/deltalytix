@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server"
 import { PrismaClient } from "@prisma/client"
-import { Resend } from 'resend'
+import { getResendClient } from '@/lib/resend'
 import { createClient } from '@/server/auth'
 import TeamInvitationEmail from '@/components/emails/team-invitation'
 import { render } from "@react-email/render"
 
 const prisma = new PrismaClient()
-const resend = new Resend(process.env.RESEND_API_KEY)
+
 
 export async function POST(req: Request) {
   try {
@@ -110,7 +110,7 @@ export async function POST(req: Request) {
     )
 
     // Send email
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResendClient().emails.send({
       from: 'Deltalytix Team <team@eu.updates.deltalytix.app>',
       to: email,
       subject: existingUser?.language === 'fr' 

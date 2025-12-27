@@ -6,12 +6,12 @@ import { PostType, PostStatus, VoteType } from '@prisma/client'
 
 import { revalidatePath } from 'next/cache'
 import sharp from 'sharp'
-import { Resend } from 'resend'
+import { getResendClient } from '@/lib/resend'
 import { formatDistanceToNow } from 'date-fns'
 import { fr, enUS } from 'date-fns/locale'
 import CommentNotificationEmail from '@/components/emails/blog/comment-notification'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+
 
 // Helper function to check if user is admin
 async function isAdmin(userId: string) {
@@ -397,7 +397,7 @@ async function sendCommentNotificationEmail({
   console.log('Sending comment notification email to:', recipientEmail)
 
   try {
-    await resend.emails.send({
+    await getResendClient().emails.send({
       from: 'Deltalytix Community <community@eu.updates.deltalytix.app>',
       to: recipientEmail,
       subject: language === 'fr' ? 'Nouveau commentaire sur votre publication' : 'New comment on your post',

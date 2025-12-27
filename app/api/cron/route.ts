@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { PrismaClient } from "@prisma/client"
-import { Resend } from 'resend'
+import { getResendClient } from '@/lib/resend'
 import { headers } from 'next/headers'
 
 
@@ -28,7 +28,7 @@ async function fetchWithRetry(url: string, options: RequestInit, retries = MAX_R
 // Vercel cron job handler - runs every Sunday at 8 AM UTC+1
 export async function GET(req: Request) {
   // Initialize Resend client at runtime
-  const resend = new Resend(process.env.RESEND_API_KEY)
+  const resend = getResendClient()
 
   try {
     // Verify that this is a legitimate Vercel cron job request

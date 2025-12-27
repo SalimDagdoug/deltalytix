@@ -1,7 +1,7 @@
 "use server"
 
 import { PrismaClient } from "@prisma/client"
-import { Resend } from 'resend'
+import { getResendClient } from '@/lib/resend'
 import NewsletterEmail from '@/components/emails/new-feature'
 import { revalidatePath } from "next/cache"
 import { parse } from "csv-parse"
@@ -104,7 +104,7 @@ export async function sendNewsletter({
     if (!process.env.RESEND_API_KEY) {
       throw new Error("RESEND_API_KEY is not configured")
     }
-    const resend = new Resend(process.env.RESEND_API_KEY)
+    const resend = getResendClient()
 
     // get all users
     const users = await prisma.user.findMany()
@@ -186,7 +186,7 @@ export async function sendTestNewsletter(email: string, firstName: string, param
     if (!process.env.RESEND_API_KEY) {
       throw new Error("RESEND_API_KEY is not configured")
     }
-    const resend = new Resend(process.env.RESEND_API_KEY)
+    const resend = getResendClient()
 
     const unsubscribeUrl = `https://deltalytix.app/api/email/unsubscribe?email=${encodeURIComponent(email)}`
 

@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server"
 import { PrismaClient } from "@prisma/client"
-import { Resend } from 'resend'
+import { getResendClient } from '@/lib/resend'
 import WelcomeEmail from '@/components/emails/welcome'
 import { getLatestVideoFromPlaylist } from "@/app/[locale]/admin/actions/youtube"
 
 const prisma = new PrismaClient()
-const resend = new Resend(process.env.RESEND_API_KEY)
+
 
 export async function POST(req: Request) {
   const fifteenMinutesFromNow = new Date(Date.now() + 15 * 60 * 1000).toISOString();
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
     }
 
     // Use react prop instead of rendering to HTML
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResendClient().emails.send({
       from: 'Deltalytix <welcome@eu.auth.deltalytix.app>',
       to: record.email,
       subject: userLanguage === 'fr' ? 'Bienvenue sur Deltalytix' : 'Welcome to Deltalytix',
