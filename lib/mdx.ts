@@ -76,7 +76,9 @@ export const getPost = cache(async (slug: string, locale: string) => {
       slug,
     }
   } catch (error) {
-    console.error(`Error reading MDX file: ${fullPath}`, error)
+    if ((error as any).code !== 'ENOENT') {
+      console.error(`Error reading MDX file: ${fullPath}`, error)
+    }
     return null
   }
 })
@@ -100,7 +102,9 @@ export const getAllPosts = cache(async (locale: string) => {
     return posts.filter((post): post is NonNullable<typeof post> => post !== null)
       .sort((a, b) => new Date(b.meta.date).getTime() - new Date(a.meta.date).getTime())
   } catch (error) {
-    console.error(`Error reading posts directory: ${localeDirectory}`, error)
+    if ((error as any).code !== 'ENOENT') {
+      console.error(`Error reading posts directory: ${localeDirectory}`, error)
+    }
     return []
   }
 }) 
