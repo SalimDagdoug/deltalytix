@@ -1,0 +1,15 @@
+name: Cron Jobs
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  renew-token:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Vercel Cron Endpoint
+        run: |
+          curl -X GET ${{ secrets.VERCEL_PROJECT_PRODUCTION_URL }}/api/cron/renew-tradovate-token \
+          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
